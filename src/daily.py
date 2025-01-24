@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 # daily.jsonのパスを定義
-daily_json_path = os.path.join(os.path.dirname(__file__), '../daily.json')
+daily_json_path = os.path.join(os.path.dirname(__file__), '../mnemonic/daily.json')
 
 # daily.jsonを読み込む関数
 def read_daily_json():
