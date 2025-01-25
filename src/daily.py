@@ -46,13 +46,14 @@ def timestamp(dt: datetime) -> int:
     return int(dt.timestamp())
 
 
-def save_pr(pr, pr_dir: Path):
+def save_pr(repo, pr, pr_dir: Path):
     file_dir = pr_dir / "files"
 
     # https://pygithub.readthedocs.io/en/latest/github_objects/PullRequest.html
 
     status = 'merged' if pr.merged else 'closed'
     metadata = {
+        "repo": repo.full_name,
         "status": status,
         "created_at": timestamp(pr.created_at),
         "updated_at": timestamp(pr.updated_at),
@@ -60,6 +61,12 @@ def save_pr(pr, pr_dir: Path):
 
     descriptions = [
         f"<title>{pr.title}</title>",
+        f"<repository>{repo.full_name}</repository>",
+        f"<head>{pr.head.ref}</head>",
+        f"<base>{pr.base.ref}</base>",
+        f"<created_at>{pr.created_at}</created_at>",
+        f"<closed_at>{pr.closed_at}</closed_at>",
+        f"<merged_at>{pr.merged_at if pr.merged else "null"}</merged_at>",
         f"<description>{pr.body}</description>",
     ]
     content = "\n".join(descriptions)
@@ -125,6 +132,7 @@ def main():
     # print('\nFetching GitHub PRs...')
     # get_github_prs("spring-projects/spring-boot", daily_data['date'])
 
+    # https://pygithub.readthedocs.io/en/latest/github_objects/Repository.html
     g = Github()
     repo = g.get_repo("spring-projects/spring-boot")
     pr = repo.get_pull(43086)
@@ -137,7 +145,7 @@ def main():
         if timestamp(pr.updated_at) > since:
             print(pr.number, pr.title, pr.updated_at)
 
-            save_pr(pr, pr_dir / str(pr.number))
+            save_pr(repo, pr, pr_dir / str(pr.number))
 
             print(f"Saved PR {pr.number} to {pr_dir}")
             time.sleep(5)
